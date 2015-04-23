@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 public class joinBluetooth extends Activity {
@@ -40,14 +41,14 @@ public class joinBluetooth extends Activity {
 
         newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
 
-        /*mNewDevicesArrayAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        newDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position,
-                                    long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-
+                Toast.makeText(getApplicationContext(),
+                        "Button is clicked", Toast.LENGTH_LONG).show();
             }
-        });*/
+        });
 
     }
 
