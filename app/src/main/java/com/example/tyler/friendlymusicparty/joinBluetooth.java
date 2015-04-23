@@ -16,7 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 
-public class joinBluetooth extends ActionBarActivity {
+public class joinBluetooth extends Activity {
 
     public BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
@@ -32,12 +32,23 @@ public class joinBluetooth extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_bluetooth);
+        newDevicesListView = (ListView)findViewById(R.id.new_devices);
 
         mBluetoothAdapter.startDiscovery();
 
-        mNewDevicesArrayAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);
-        newDevicesListView = (ListView)findViewById(R.id.new_devices);
+        mNewDevicesArrayAdapter=new ArrayAdapter<String>(this,android.R.layout.activity_list_item);//populate listview soon
+
         newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
+
+        mNewDevicesArrayAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                                    long id) {
+
+
+            }
+        });
+
     }
 
     /***************************************************************************************************
@@ -64,22 +75,6 @@ public class joinBluetooth extends ActionBarActivity {
         }
     };
 
-    newDevicesListView
-
-
-
-        public void onItemClick(AdapterView mNewDevicesArrayAdapter,View v, int position){
-
-            ItemClicked item = adapter.getItem(position);
-
-            Intent intent = new Intent(party.this,destinationActivity.class);
-//based on item add info to intent
-            startActivity(intent);
-
-        }
-
-
-    });
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
