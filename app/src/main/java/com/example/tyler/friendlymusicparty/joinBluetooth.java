@@ -40,14 +40,14 @@ public class joinBluetooth extends Activity {
 
         newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
 
-        mNewDevicesArrayAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*mNewDevicesArrayAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
 
 
             }
-        });
+        });*/
 
     }
 
