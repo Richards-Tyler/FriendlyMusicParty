@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">FriendlyMusicParty</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="JoinServer">Join Server</string>
+    <string name="HostServer">Host Server</string>
+    <string name="title_activity_join_bluetooth">joinBluetooth</string>
+</resources>
