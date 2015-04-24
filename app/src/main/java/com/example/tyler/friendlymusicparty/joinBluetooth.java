@@ -3,6 +3,7 @@ package com.example.tyler.friendlymusicparty;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.UUID;
 
 
 public class joinBluetooth extends Activity {
@@ -22,6 +27,8 @@ public class joinBluetooth extends Activity {
     public BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
+    private BluetoothSocket socket;
+    private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
     /***************************************************************************************************
      *
@@ -34,10 +41,11 @@ public class joinBluetooth extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_bluetooth);
         newDevicesListView = (ListView)findViewById(R.id.new_devices);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         mBluetoothAdapter.startDiscovery();
 
-        mNewDevicesArrayAdapter=new ArrayAdapter<String>(this,android.R.layout.activity_list_item);//populate listview soon
+        mNewDevicesArrayAdapter=new ArrayAdapter<String>(this,android.R.layout.activity_list_item);
 
         newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
 
@@ -45,8 +53,21 @@ public class joinBluetooth extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Toast.makeText(getApplicationContext(),
-                        "Button is clicked", Toast.LENGTH_LONG).show();
+                mBluetoothAdapter.cancelDiscovery();
+                final String info = ((TextView) view).getText().toString();
+
+                String address = info.substring(info.length() - 19);
+
+                BluetoothDevice connect_device = mBluetoothAdapter.getRemoteDevice(address);
+
+                try {
+                    socket = connect_device.createRfcommSocketToServiceRecord(my_UUID);
+                    socket.connect();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
             }
         });
 
@@ -75,6 +96,19 @@ public class joinBluetooth extends Activity {
             }
         }
     };
+
+    /***************************************************************************************************
+     *
+     * `              Cancel Discoverability
+     *
+     **************************************************************************************************/
+
+    protected void onDestroy(){
+        super.onDestroy();
+        if(mBluetoothAdapter != null)
+            mBluetoothAdapter.cancelDiscovery();
+        unregisterReceiver(mReceiver);
+    }
 
 
     @Override
