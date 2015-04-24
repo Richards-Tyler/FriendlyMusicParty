@@ -6,4 +6,7 @@
     <string name="JoinServer">Join Server</string>
     <string name="HostServer">Host Server</string>
     <string name="title_activity_join_bluetooth">joinBluetooth</string>
+    <string name="title_activity_host_bluetooth">hostParty</string>
+    <string name="hostPartyTitle">Host Party</string>
+    <string name="hostAddMusic">Add Music to Queue</string>
 </resources>

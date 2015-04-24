@@ -22,6 +22,10 @@
             android:name=".joinBluetooth"
             android:label="@string/title_activity_join_bluetooth" >
         </activity>
+        <activity
+            android:name=".hostParty"
+            android:label="@string/title_activity_host_bluetooth" >
+        </activity>
     </application>
 
 </manifest>
