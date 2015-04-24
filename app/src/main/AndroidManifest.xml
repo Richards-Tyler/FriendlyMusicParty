@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".joinBluetooth"
+            android:name=".JoinBluetooth"
             android:label="@string/title_activity_join_bluetooth" >
         </activity>
         <activity

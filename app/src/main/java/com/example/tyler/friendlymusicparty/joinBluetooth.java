@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
-public class joinBluetooth extends Activity {
+public class JoinBluetooth extends Activity {
 
     public BluetoothAdapter mBluetoothAdapter;
     private ListView newDevicesListView;

@@ -10,8 +10,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.UUID;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -21,6 +22,7 @@ public class MainActivity extends ActionBarActivity {
     public BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private static final int REQUEST_ENABLE_BT = 1;
+    private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
     /***************************************************************************************************
      *
@@ -38,7 +40,7 @@ public class MainActivity extends ActionBarActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();//Declare and get Adapter
         if(mBluetoothAdapter == null){//checks if bluetooth adapter is supported
             Toast.makeText(this, "Please Enable Bluetooth", Toast.LENGTH_SHORT).show();
-            finish();
+            //finish();
             return;
         }
 
@@ -57,7 +59,7 @@ public class MainActivity extends ActionBarActivity {
      **************************************************************************************************/
     public void joinServer(View view){
 
-        Intent intent = new Intent(this,joinBluetooth.class);
+        Intent intent = new Intent(this,JoinBluetooth.class);
         startActivity(intent);
 
     }

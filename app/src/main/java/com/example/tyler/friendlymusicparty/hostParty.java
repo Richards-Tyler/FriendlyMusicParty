@@ -3,6 +3,8 @@ package com.example.tyler.friendlymusicparty;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +19,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Created by zissou on 4/23/15.
@@ -30,6 +34,7 @@ public class hostParty extends Activity {
     public BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
+    private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
     /***************************************************************************************************
      *
@@ -145,3 +150,42 @@ public class hostParty extends Activity {
         return super.onOptionsItemSelected(item);
     }
 }
+class AcceptThread extends Thread {
+
+    public BluetoothAdapter mBluetoothAdapter;
+    private BluetoothServerSocket mmServerSocket;
+    private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
+
+    public AcceptThread() {
+        BluetoothServerSocket socket = null;
+        try {
+
+            socket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("Friendly Music Party", my_UUID);
+        } catch (IOException e){}
+        mmServerSocket = socket;
+    }
+
+    public void run(){
+        BluetoothSocket socket = null;
+
+        while(true){
+            try{
+                socket = mmServerSocket.accept();
+            }catch (IOException e) {
+                break;
+            }
+            if(socket != null){
+                //hostParty host =new hostParty(); this is where you call the method and pass the connection. I.e. useConnection(Socket);
+                //mmServerSocket.close(); This closes the serversocket
+                break;
+            }
+        }
+    }
+
+    public void cancel(){
+        try {
+            mmServerSocket.close();
+        } catch(IOException e){}
+    }
+}
+
