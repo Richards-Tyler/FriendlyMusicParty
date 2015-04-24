@@ -41,6 +41,7 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
     private Button start, stop, vetoSong;
     private ProgressBar progress;
     public BluetoothAdapter mBluetoothAdapter;
+    public BluetoothServerSocket ServerSocket;
     private MusicLibrary library;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
@@ -123,6 +124,14 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
         initializeComponents(savedInstanceState);
         addButtonHandlers();
 
+        ApplicationHolder appState = new ApplicationHolder();
+        appState = ((ApplicationHolder)this.getApplication());
+        //socket = appState.socket;
+        ServerSocket = appState.serverSocket;
+
+
+        Toast.makeText(getApplicationContext(),
+                " your connection", Toast.LENGTH_LONG).show();
 
     }
 
@@ -210,24 +219,6 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
     }
 
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver(){
-        @Override
-        public void onReceive(Context context, Intent intent){
-            String action = intent.getAction();
-
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED)
-                {
-                    mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-                    mNewDevicesArrayAdapter.notifyDataSetChanged();
-                }
-
-
-            }
-        }
-    };
-
     public void  playSong(int songIndex){
 
         try {
@@ -301,6 +292,24 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
         }
     };
 
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent){
+            String action = intent.getAction();
+
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device.getBondState() != BluetoothDevice.BOND_BONDED)
+                {
+                    mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                    mNewDevicesArrayAdapter.notifyDataSetChanged();
+                }
+
+
+            }
+        }
+    };
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -322,44 +331,6 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
         }
 
         return super.onOptionsItemSelected(item);
-    }
-}
-class AcceptThread extends Thread {
-
-    public BluetoothAdapter mBluetoothAdapter;
-    private BluetoothServerSocket mmServerSocket;
-    private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
-
-    public AcceptThread() {
-        BluetoothServerSocket socket = null;
-        try {
-
-            socket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("Friendly Music Party", my_UUID);
-        } catch (IOException e){}
-        mmServerSocket = socket;
-    }
-
-    public void run(){
-        BluetoothSocket socket = null;
-
-        while(true){
-            try{
-                socket = mmServerSocket.accept();
-            }catch (IOException e) {
-                break;
-            }
-            if(socket != null){
-                //hostParty host =new hostParty(); this is where you call the method and pass the connection. I.e. useConnection(Socket);
-                //mmServerSocket.close(); This closes the serversocket
-                break;
-            }
-        }
-    }
-
-    public void cancel(){
-        try {
-            mmServerSocket.close();
-        } catch(IOException e){}
     }
 }
 

@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,8 +77,8 @@ public class JoinBluetooth extends Activity {
 		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
 		List<String> s = new ArrayList<String>();
-		for(BluetoothDevice bt: pairedDevices)
-			s.add(bt.getName());
+		for(String bt: deviceList)
+			s.add(bt);
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, s);
 		newDevicesListView.setAdapter(adapter);
@@ -88,6 +89,7 @@ public class JoinBluetooth extends Activity {
 		newDevicesListView = (ListView)findViewById(R.id.new_devices);
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mBluetoothAdapter.startDiscovery();
+
 		updateList();
 	}
 
@@ -101,12 +103,14 @@ public class JoinBluetooth extends Activity {
         @Override
         public void onReceive(Context context, Intent intent){
             String action = intent.getAction();
-
+            Toast.makeText(getApplicationContext(), "Mreciever", Toast.LENGTH_SHORT).show();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED)
                 {
                     deviceList.add(device.getName() + "\n" + device.getAddress());
+                    Toast.makeText(getApplicationContext(), "Device address " + device.getAddress(), Toast.LENGTH_SHORT).show();
+                    System.out.println("Device address " + device.getAddress());
 					updateList();
                 }
 
