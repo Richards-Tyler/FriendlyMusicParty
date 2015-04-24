@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,14 +18,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
 public class joinBluetooth extends Activity {
 
     public BluetoothAdapter mBluetoothAdapter;
-    private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
+	private ArrayList<String> deviceList;
     private BluetoothSocket socket;
     private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
@@ -40,14 +42,9 @@ public class joinBluetooth extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_bluetooth);
-        newDevicesListView = (ListView)findViewById(R.id.new_devices);
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        mBluetoothAdapter.startDiscovery();
+        initialize();
 
-        mNewDevicesArrayAdapter=new ArrayAdapter<String>(this,android.R.layout.activity_list_item);
-
-        newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
 
         newDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -63,8 +60,10 @@ public class joinBluetooth extends Activity {
                 try {
                     socket = connect_device.createRfcommSocketToServiceRecord(my_UUID);
                     socket.connect();
+					if(socket.isConnected()){
+						Toast.makeText(getApplicationContext(), "You're connected!", Toast.LENGTH_SHORT).show();
+					}
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
@@ -72,6 +71,25 @@ public class joinBluetooth extends Activity {
         });
 
     }
+
+	public void updateList() {
+		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+		List<String> s = new ArrayList<String>();
+		for(BluetoothDevice bt: pairedDevices)
+			s.add(bt.getName());
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, s);
+		newDevicesListView.setAdapter(adapter);
+
+	}
+
+	public void initialize() {
+		newDevicesListView = (ListView)findViewById(R.id.new_devices);
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		mBluetoothAdapter.startDiscovery();
+		updateList();
+	}
 
     /***************************************************************************************************
      *
@@ -88,8 +106,8 @@ public class joinBluetooth extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED)
                 {
-                    mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-                    mNewDevicesArrayAdapter.notifyDataSetChanged();
+                    deviceList.add(device.getName() + "\n" + device.getAddress());
+					updateList();
                 }
 
 
