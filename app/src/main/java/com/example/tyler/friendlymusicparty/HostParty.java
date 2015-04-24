@@ -20,7 +20,6 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +37,7 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
 
     private ArrayList<String> priorities;
     private ArrayList<HashMap<String, String>> songsList;
-    private MediaPlayer mp;
+    private MediaPlayer mediaplayer;
     private Button start, stop, vetoSong;
     private ProgressBar progress;
     public BluetoothAdapter mBluetoothAdapter;
@@ -67,10 +66,10 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
 
 
         library = new MusicLibrary();
-        mp = new MediaPlayer();
+        mediaplayer = new MediaPlayer();
         utils = new Utilities();
 
-        mp.setOnCompletionListener(this);
+        mediaplayer.setOnCompletionListener(this);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -107,7 +106,7 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
                                     int position, long id) {
                 // getting listitem index
                 int songIndex = position;
-                if(!mp.isPlaying()) {
+                if(!mediaplayer.isPlaying()) {
                     currentSongIndex = 0;
                     nextSongIndex = position;
 
@@ -143,18 +142,16 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
         progress.setMax(100); //change to song length
         progress.setProgress(0);
 
-
-
     }
     public void addButtonHandlers() {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if(v == start) {
-                    if(mp.isPlaying()){
-                        if(mp!=null){
+            public void onClick(View view) {
+                if(view == start) {
+                    if(mediaplayer.isPlaying()){
+                        if(mediaplayer!=null){
 
-                            mp.pause();
+                            mediaplayer.pause();
                             start.setText("Play");
 
                         }else{
@@ -162,9 +159,9 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
                         }
                     }else{
                         // Resume song
-                        if(mp!=null){
+                        if(mediaplayer!=null){
 
-                            mp.start();
+                            mediaplayer.start();
                             start.setText("Pause");
 
                         }else {
@@ -172,21 +169,18 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
                         }
                     }
 
-
-
-                } else if(v == stop) {
-
-                    mp.stop();
+                } else if(view == stop) {
+                    mediaplayer.stop();
                     start.setText("Play");
 
-                } else if (v == vetoSong){
+                } else if (view == vetoSong){
 
                     Toast.makeText(getApplicationContext(),
                             "veto", Toast.LENGTH_LONG).show();
 
                     if(currentSongIndex != nextSongIndex) {
                         Random rand = new Random();
-                        mp.stop();
+                        mediaplayer.stop();
                         playSong(nextSongIndex);
 
                         currentSongIndex = nextSongIndex;
@@ -204,9 +198,6 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
 
                     }
                 }
-
-
-
             }
         };
         start.setOnClickListener(listener);
@@ -240,10 +231,10 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
     public void  playSong(int songIndex){
 
         try {
-            mp.reset();
-            mp.setDataSource(songsList.get(songIndex).get("songPath"));
-            mp.prepare();
-            mp.start();
+            mediaplayer.reset();
+            mediaplayer.setDataSource(songsList.get(songIndex).get("songPath"));
+            mediaplayer.prepare();
+            mediaplayer.start();
 
             String songTitle = songsList.get(songIndex).get("songTitle");
             songTitleLabel.setText(songTitle);
@@ -283,7 +274,7 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
     @Override
     public void onDestroy(){
         super.onDestroy();
-        mp.release();
+        mediaplayer.release();
     }
 
     public void updateProgressBar() {
@@ -291,8 +282,8 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
     }
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
-            long totalDuration = mp.getDuration();
-            long currentDuration = mp.getCurrentPosition();
+            long totalDuration = mediaplayer.getDuration();
+            long currentDuration = mediaplayer.getCurrentPosition();
 
             // Displaying Total Duration time
             //songTotalDurationLabel.setText(""+utils.milliSecondsToTimer(totalDuration));
