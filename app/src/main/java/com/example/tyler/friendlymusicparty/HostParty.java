@@ -262,10 +262,12 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
             if(currentSongIndex < (songsList.size() - 1)){
                 playSong(currentSongIndex + 1);
                 currentSongIndex = currentSongIndex + 1;
+                nextSongIndex = currentSongIndex;
             }else {
                 // play first song
                 playSong(0);
                 currentSongIndex = 0;
+                nextSongIndex = 0;
             }
         }
 
