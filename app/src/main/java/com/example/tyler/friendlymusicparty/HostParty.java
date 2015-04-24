@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,25 +16,31 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
  * Created by zissou on 4/23/15.
  */
-public class hostParty extends Activity {
+public class HostParty extends Activity {
 
     private ArrayList<String> priorities;
+    private ArrayList<HashMap<String, String>> songsList;
+    private MediaPlayer mp;
     private Button start, stop, addMusic;
     private ProgressBar progress;
     public BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
+    private int currentSongIndex = 0;
     private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
     /***************************************************************************************************
@@ -47,6 +54,11 @@ public class hostParty extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_host_bluetooth);
 
+        MusicLibrary library = new MusicLibrary();
+        ArrayList<HashMap<String, String>> songsListData = new ArrayList<HashMap<String, String>>();
+
+
+
 
         Toast.makeText(getApplicationContext(),
                 " host Button is clicked", Toast.LENGTH_LONG).show();
@@ -54,6 +66,50 @@ public class hostParty extends Activity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         mBluetoothAdapter.startDiscovery();
+
+        // get all songs from sdcard
+        this.songsList = library.getPlayList(getApplicationContext());
+
+
+        for(HashMap<String, String> map : songsList) {
+          //  System.out.println(map.toString());
+            HashMap<String, String> song = map;
+
+            songsListData.add(song);
+        }
+
+        // Adding menuItems to ListView
+        ListAdapter adapter = new SimpleAdapter(this, songsListData,
+                R.layout.playlist_item, new String[] { "songTitle" }, new int[] {
+                R.id.songTitle });
+
+        ListView mList = (ListView) findViewById(R.id.hostMusicListView);
+
+        mList.setAdapter(adapter);
+
+        // selecting single ListView item
+
+        // listening to single listitem click
+        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                // getting listitem index
+                int songIndex = position;
+                Toast.makeText(getApplicationContext(),
+                        "song index " + songIndex, Toast.LENGTH_LONG).show();
+
+                // Starting new intent
+                //Intent in = new Intent(getApplicationContext(),
+                //      AndroidBuildingMusicPlayerActivity.class);
+                // Sending songIndex to PlayerActivity
+                //in.putExtra("songIndex", songIndex);
+                // setResult(100, in);
+                // Closing PlayListView
+                // finish();
+            }
+        });
 
         initializeComponents(savedInstanceState);
         addButtonHandlers();

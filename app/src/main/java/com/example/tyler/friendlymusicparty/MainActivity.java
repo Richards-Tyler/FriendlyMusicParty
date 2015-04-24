@@ -35,8 +35,6 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();//Declare and get Adapter
         if(mBluetoothAdapter == null){//checks if bluetooth adapter is supported
             Toast.makeText(this, "Please Enable Bluetooth", Toast.LENGTH_SHORT).show();
@@ -66,7 +64,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void hostServer(View view){
 
-        Intent intent = new Intent(this,hostParty.class);
+        Intent intent = new Intent(this,HostParty.class);
         startActivity(intent);
 
     }

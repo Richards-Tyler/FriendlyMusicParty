@@ -3,6 +3,7 @@
     package="com.example.tyler.friendlymusicparty" >
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,7 +24,7 @@
             android:label="@string/title_activity_join_bluetooth" >
         </activity>
         <activity
-            android:name=".hostParty"
+            android:name=".HostParty"
             android:label="@string/title_activity_host_bluetooth" >
         </activity>
     </application>
