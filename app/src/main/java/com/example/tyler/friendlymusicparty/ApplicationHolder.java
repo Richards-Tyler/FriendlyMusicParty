@@ -15,7 +15,8 @@ import java.util.UUID;
 public class ApplicationHolder extends Application {
     public BluetoothAdapter mBluetoothAdapter;
     public BluetoothSocket socket;
-    public ApplicationHolder data = new ApplicationHolder();
+    public ApplicationHolder data;
+	public BluetoothServerSocket serverSocket;
 
     /***************************************************************************************************
      *
@@ -23,16 +24,18 @@ public class ApplicationHolder extends Application {
      *
      **************************************************************************************************/
 
-    public BluetoothSocket onCreate(Bundle savedInstanceState) {
-       AcceptThread acceptThread = new AcceptThread();
-       socket = acceptThread.getBTContext();
-       //ApplicationHolder = acceptThread.getBTContext();
-       return socket;
+    public void onCreate(Bundle savedInstanceState) {
+
+        AcceptThread acceptThread = new AcceptThread();
+		data = new ApplicationHolder();
+        socket = acceptThread.getBTContext();
+		serverSocket = acceptThread.getMmServerSocket();
+
     }
 
     /***************************************************************************************************
      *
-     * `              Our AcceptThread that creates the socket
+     *              Our AcceptThread that creates the socket
      *
      **************************************************************************************************/
 
@@ -83,6 +86,10 @@ public class ApplicationHolder extends Application {
             run();
             return socket;
         }
+		public BluetoothServerSocket getMmServerSocket(){
+			run();
+			return mmServerSocket;
+		}
     }
 
 

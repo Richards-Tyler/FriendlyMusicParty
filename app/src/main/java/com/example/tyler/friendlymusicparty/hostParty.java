@@ -12,14 +12,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -36,6 +34,7 @@ public class hostParty extends Activity {
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
     private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
+	public BluetoothServerSocket ServerSocket;
 
     /***************************************************************************************************
      *
@@ -49,8 +48,8 @@ public class hostParty extends Activity {
         setContentView(R.layout.activity_host_bluetooth);
 
 
-        Toast.makeText(getApplicationContext(),
-                " host Button is clicked", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),
+        //        " host Button is clicked", Toast.LENGTH_LONG).show();
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -60,7 +59,9 @@ public class hostParty extends Activity {
         addButtonHandlers();
         ApplicationHolder appState = new ApplicationHolder();
         appState = ((ApplicationHolder)this.getApplication());
-        socket = appState.data.socket;
+        //socket = appState.socket;
+		ServerSocket = appState.serverSocket;
+
 
         Toast.makeText(getApplicationContext(),
                 " your connection", Toast.LENGTH_LONG).show();
