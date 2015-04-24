@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity {
      **************************************************************************************************/
     public void joinServer(View view){
 
-        Intent intent = new Intent(this,JoinBluetooth.class);
+        Intent intent = new Intent(this,joinBluetooth.class);
         startActivity(intent);
 
     }

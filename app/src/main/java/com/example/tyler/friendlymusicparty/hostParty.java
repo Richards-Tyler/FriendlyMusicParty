@@ -28,6 +28,7 @@ import java.util.UUID;
  */
 public class hostParty extends Activity {
 
+    private BluetoothSocket socket;
     private ArrayList<String> priorities;
     private Button start, stop, addMusic;
     private ProgressBar progress;
@@ -57,7 +58,12 @@ public class hostParty extends Activity {
 
         initializeComponents(savedInstanceState);
         addButtonHandlers();
+        ApplicationHolder appState = new ApplicationHolder();
+        appState = ((ApplicationHolder)this.getApplication());
+        socket = appState.data.socket;
 
+        Toast.makeText(getApplicationContext(),
+                " your connection", Toast.LENGTH_LONG).show();
 
     }
     public void initializeComponents(Bundle savedInstanceState) {
@@ -150,42 +156,3 @@ public class hostParty extends Activity {
         return super.onOptionsItemSelected(item);
     }
 }
-class AcceptThread extends Thread {
-
-    public BluetoothAdapter mBluetoothAdapter;
-    private BluetoothServerSocket mmServerSocket;
-    private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
-
-    public AcceptThread() {
-        BluetoothServerSocket socket = null;
-        try {
-
-            socket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("Friendly Music Party", my_UUID);
-        } catch (IOException e){}
-        mmServerSocket = socket;
-    }
-
-    public void run(){
-        BluetoothSocket socket = null;
-
-        while(true){
-            try{
-                socket = mmServerSocket.accept();
-            }catch (IOException e) {
-                break;
-            }
-            if(socket != null){
-                //hostParty host =new hostParty(); this is where you call the method and pass the connection. I.e. useConnection(Socket);
-                //mmServerSocket.close(); This closes the serversocket
-                break;
-            }
-        }
-    }
-
-    public void cancel(){
-        try {
-            mmServerSocket.close();
-        } catch(IOException e){}
-    }
-}
-
