@@ -14,19 +14,17 @@
         android:layout_centerHorizontal="true"
         android:textSize="42dp" />
 
-    <SeekBar
+    <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/hostPartyProgressBar"
-        android:layout_below="@+id/hostPartyTextView"
-        android:layout_marginTop="47dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:backgroundTint="@color/accent_material_light"
-        android:clickable="false" />
+        android:clickable="false"
+        android:layout_below="@+id/hostPartyTextView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="160dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -44,22 +42,18 @@
         android:layout_height="wrap_content"
         android:text="Stop"
         android:id="@+id/stopButton"
-        android:layout_alignTop="@+id/hostPlayButton"
-        android:layout_toRightOf="@+id/hostPlayButton"
-        android:layout_marginLeft="27dp"
-        android:layout_marginStart="27dp" />
+        android:layout_below="@+id/hostPartyProgressBar"
+        android:layout_centerHorizontal="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hostAddMusic"
-        android:id="@+id/addMusicButton"
-        android:layout_alignTop="@+id/stopButton"
-        android:layout_toRightOf="@+id/stopButton"
-        android:layout_toEndOf="@+id/stopButton"
-        android:layout_marginLeft="35dp"
-        android:layout_marginStart="35dp" />
+        android:text="@string/vetoSong"
+        android:id="@+id/vetoSongButton"
+        android:layout_above="@+id/hostMusicListView"
+        android:layout_toRightOf="@+id/hostPartyTextView"
+        android:layout_toEndOf="@+id/hostPartyTextView" />
 
     <ListView
         android:layout_width="wrap_content"
@@ -68,5 +62,18 @@
         android:layout_below="@+id/stopButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/currentSongTextView"
+        android:layout_above="@+id/stopButton"
+        android:layout_marginBottom="56dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="32dp" />
 
 </RelativeLayout>

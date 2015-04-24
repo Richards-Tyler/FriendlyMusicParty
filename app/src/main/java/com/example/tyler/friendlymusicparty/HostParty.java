@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,28 +20,36 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.UUID;
 
 /**
  * Created by zissou on 4/23/15.
  */
-public class HostParty extends Activity {
+public class HostParty extends Activity  implements MediaPlayer.OnCompletionListener{
 
     private ArrayList<String> priorities;
     private ArrayList<HashMap<String, String>> songsList;
     private MediaPlayer mp;
-    private Button start, stop, addMusic;
+    private Button start, stop, vetoSong;
     private ProgressBar progress;
     public BluetoothAdapter mBluetoothAdapter;
+    private MusicLibrary library;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
+    private TextView songTitleLabel;
+    private Handler mHandler = new Handler();
+    private Utilities utils;
     private int currentSongIndex = 0;
+    private int nextSongIndex = 0;
     private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
     /***************************************************************************************************
@@ -54,14 +63,14 @@ public class HostParty extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_host_bluetooth);
 
-        MusicLibrary library = new MusicLibrary();
         ArrayList<HashMap<String, String>> songsListData = new ArrayList<HashMap<String, String>>();
 
 
+        library = new MusicLibrary();
+        mp = new MediaPlayer();
+        utils = new Utilities();
 
-
-        Toast.makeText(getApplicationContext(),
-                " host Button is clicked", Toast.LENGTH_LONG).show();
+        mp.setOnCompletionListener(this);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -71,8 +80,9 @@ public class HostParty extends Activity {
         this.songsList = library.getPlayList(getApplicationContext());
 
 
+        songTitleLabel = (TextView) findViewById(R.id.currentSongTextView);
+
         for(HashMap<String, String> map : songsList) {
-          //  System.out.println(map.toString());
             HashMap<String, String> song = map;
 
             songsListData.add(song);
@@ -97,17 +107,17 @@ public class HostParty extends Activity {
                                     int position, long id) {
                 // getting listitem index
                 int songIndex = position;
-                Toast.makeText(getApplicationContext(),
-                        "song index " + songIndex, Toast.LENGTH_LONG).show();
+                if(!mp.isPlaying()) {
+                    currentSongIndex = 0;
+                    nextSongIndex = position;
 
-                // Starting new intent
-                //Intent in = new Intent(getApplicationContext(),
-                //      AndroidBuildingMusicPlayerActivity.class);
-                // Sending songIndex to PlayerActivity
-                //in.putExtra("songIndex", songIndex);
-                // setResult(100, in);
-                // Closing PlayListView
-                // finish();
+                }else {
+                    nextSongIndex = position;
+                }
+
+                String songTitle = songsList.get(songIndex).get("songTitle");
+                Toast.makeText(getApplicationContext(),
+                        "next song: " + songTitle, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -116,6 +126,9 @@ public class HostParty extends Activity {
 
 
     }
+
+
+
     public void initializeComponents(Bundle savedInstanceState) {
 
         //priorities = new ArrayList<>(items);
@@ -124,7 +137,8 @@ public class HostParty extends Activity {
         progress = (ProgressBar) findViewById(R.id.hostPartyProgressBar);
         start = (Button) findViewById(R.id.hostPlayButton);
         stop = (Button) findViewById(R.id.stopButton);
-        addMusic = (Button) findViewById(R.id.addMusicButton);
+        vetoSong = (Button) findViewById(R.id.vetoSongButton);
+
 
         progress.setMax(100); //change to song length
         progress.setProgress(0);
@@ -137,18 +151,58 @@ public class HostParty extends Activity {
             @Override
             public void onClick(View v) {
                 if(v == start) {
-                    Toast.makeText(getApplicationContext(),
-                            "start is clicked", Toast.LENGTH_LONG).show();
+                    if(mp.isPlaying()){
+                        if(mp!=null){
 
-                    progress.incrementProgressBy(1);
+                            mp.pause();
+                            start.setText("Play");
+
+                        }else{
+                            playSong(currentSongIndex);
+                        }
+                    }else{
+                        // Resume song
+                        if(mp!=null){
+
+                            mp.start();
+                            start.setText("Pause");
+
+                        }else {
+                            playSong(currentSongIndex);
+                        }
+                    }
+
+
+
                 } else if(v == stop) {
 
-                    Toast.makeText(getApplicationContext(),
-                            "stop Button is clicked", Toast.LENGTH_LONG).show();
+                    mp.stop();
+                    start.setText("Play");
 
-                } else if (v == addMusic){
+                } else if (v == vetoSong){
+
                     Toast.makeText(getApplicationContext(),
-                            "add music Button is clicked", Toast.LENGTH_LONG).show();
+                            "veto", Toast.LENGTH_LONG).show();
+
+                    if(currentSongIndex != nextSongIndex) {
+                        Random rand = new Random();
+                        mp.stop();
+                        playSong(nextSongIndex);
+
+                        currentSongIndex = nextSongIndex;
+                        nextSongIndex = rand.nextInt((songsList.size() - 1) - 0 + 1) + 0;
+
+                    }else {
+                        if (currentSongIndex < (songsList.size() - 1)) {
+                            playSong(currentSongIndex + 1);
+                            currentSongIndex = currentSongIndex + 1;
+                        } else {
+                            // play first song
+                            playSong(0);
+                            currentSongIndex = 0;
+                        }
+
+                    }
                 }
 
 
@@ -157,7 +211,7 @@ public class HostParty extends Activity {
         };
         start.setOnClickListener(listener);
         stop.setOnClickListener(listener);
-        addMusic.setOnClickListener(listener);
+        vetoSong.setOnClickListener(listener);
 
 
 
@@ -180,6 +234,77 @@ public class HostParty extends Activity {
 
 
             }
+        }
+    };
+
+    public void  playSong(int songIndex){
+
+        try {
+            mp.reset();
+            mp.setDataSource(songsList.get(songIndex).get("songPath"));
+            mp.prepare();
+            mp.start();
+
+            String songTitle = songsList.get(songIndex).get("songTitle");
+            songTitleLabel.setText(songTitle);
+
+            progress.setProgress(0);
+            progress.setMax(100);
+
+            updateProgressBar();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        if(nextSongIndex != currentSongIndex) {
+            currentSongIndex = nextSongIndex;
+            playSong(nextSongIndex);
+        }else {
+             // Implement get audio from player two bluetooth
+            if(currentSongIndex < (songsList.size() - 1)){
+                playSong(currentSongIndex + 1);
+                currentSongIndex = currentSongIndex + 1;
+            }else {
+                // play first song
+                playSong(0);
+                currentSongIndex = 0;
+            }
+        }
+
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        mp.release();
+    }
+
+    public void updateProgressBar() {
+        mHandler.postDelayed(mUpdateTimeTask, 100);
+    }
+    private Runnable mUpdateTimeTask = new Runnable() {
+        public void run() {
+            long totalDuration = mp.getDuration();
+            long currentDuration = mp.getCurrentPosition();
+
+            // Displaying Total Duration time
+            //songTotalDurationLabel.setText(""+utils.milliSecondsToTimer(totalDuration));
+            // Displaying time completed playing
+            //songCurrentDurationLabel.setText(""+utils.milliSecondsToTimer(currentDuration));
+
+            int pr = (int)(utils.getProgressPercentage(currentDuration, totalDuration));
+
+            progress.setProgress(pr);
+
+            // Running this thread after 100 milliseconds
+            mHandler.postDelayed(this, 100);
         }
     };
 
