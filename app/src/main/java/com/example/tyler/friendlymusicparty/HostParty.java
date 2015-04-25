@@ -41,7 +41,9 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
     private Button start, stop, vetoSong;
     private ProgressBar progress;
     public BluetoothAdapter mBluetoothAdapter;
+    private BluetoothServerSocket mmServerSocket;
     public BluetoothServerSocket ServerSocket;
+    private BluetoothSocket socket;
     private MusicLibrary library;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ListView newDevicesListView;
@@ -74,7 +76,11 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        mBluetoothAdapter.startDiscovery();
+//        mBluetoothAdapter.enable();
+
+
+
+
 
         // get all songs from sdcard
         this.songsList = library.getPlayList(getApplicationContext());
@@ -88,7 +94,6 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
             songsListData.add(song);
         }
 
-        // Adding menuItems to ListView
         ListAdapter adapter = new SimpleAdapter(this, songsListData,
                 R.layout.playlist_item, new String[] { "songTitle" }, new int[] {
                 R.id.songTitle });
@@ -124,6 +129,27 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
         initializeComponents(savedInstanceState);
         addButtonHandlers();
 
+        Intent discoverableIntent = new
+                Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        //discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivity(discoverableIntent);
+        //text.setText("Discoverable!!");
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("0C:71:5D:FA:20:CC");
+        try {
+            socket = device.createRfcommSocketToServiceRecord(my_UUID);
+            mBluetoothAdapter.cancelDiscovery();
+            socket.connect();
+            String message = "Hello.............. from....... Android......\n";
+
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+
+        //while(mmServerSocket==null);
+        //AcceptThread();
+        //run();
+
         //ApplicationHolder appState = new ApplicationHolder();
         //ApplicationHolder appState = ((ApplicationHolder)this.getApplication());
         //socket = appState.socket;
@@ -136,7 +162,35 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
 
     }
 
+    public void AcceptThread() {
+        BluetoothServerSocket tmp = null;
+        try {
+            tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("Party Client",my_UUID);
 
+        } catch (IOException e) { }
+        mmServerSocket = tmp;
+    }
+
+    public void run() {
+        BluetoothSocket socket = null;
+        while (true) {
+            try {
+                socket = mmServerSocket.accept();
+                //changeT("listening");
+            } catch (IOException e) {
+                break;
+            }
+            if (socket != null) {
+               // changeT("doneeeee");
+                try {
+                    mmServerSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
+    }
 
     public void initializeComponents(Bundle savedInstanceState) {
 

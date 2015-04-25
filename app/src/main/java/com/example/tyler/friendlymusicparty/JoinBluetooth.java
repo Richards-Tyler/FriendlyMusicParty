@@ -3,6 +3,7 @@ package com.example.tyler.friendlymusicparty;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +32,9 @@ public class JoinBluetooth extends Activity {
     public BluetoothAdapter mBluetoothAdapter;
     private ListView newDevicesListView;
 	private ArrayList<String> deviceList;
-    private BluetoothSocket socket;
+    private List<String> discoverableDevicesList;
+    private BluetoothSocket mBluetoothSocket;
+    private BluetoothServerSocket mBluetoothServerSocket;
     private BroadcastReceiver mReceiver;
     private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
@@ -44,6 +48,7 @@ public class JoinBluetooth extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_bluetooth);
+        discoverableDevicesList = new ArrayList<String>();
 
         initialize();
 
@@ -51,20 +56,21 @@ public class JoinBluetooth extends Activity {
         newDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "item click" , Toast.LENGTH_SHORT).show();
 
                 mBluetoothAdapter.cancelDiscovery();
                 final String info = ((TextView) view).getText().toString();
 
                 String address = info.substring(info.length() - 19);
 
-                BluetoothDevice connect_device = mBluetoothAdapter.getRemoteDevice(address);
+                BluetoothDevice connect_device = mBluetoothAdapter.getRemoteDevice("0C:71:5D:FA:20:CC");
 
                 try {
-                    socket = connect_device.createRfcommSocketToServiceRecord(my_UUID);
-                    socket.connect();
-					if(socket.isConnected()){
-						Toast.makeText(getApplicationContext(), "You're connected!", Toast.LENGTH_SHORT).show();
-					}
+                    mBluetoothSocket= connect_device.createRfcommSocketToServiceRecord(my_UUID);
+                   // socket.connect();
+					//if(socket.isConnected()){
+					//	Toast.makeText(getApplicationContext(), "You're connected!", Toast.LENGTH_SHORT).show();
+				//	}
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -74,12 +80,14 @@ public class JoinBluetooth extends Activity {
 
     }
 
-	public void updateList(List<String> discoverableDevicesList) {
+	public void updateList() {
 		//Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        Toast.makeText(getApplicationContext(), "update list", Toast.LENGTH_SHORT).show();
+        //List<String> discoverableDevicesList
 
+        System.out.println("in Update");
 		List<String> s = new ArrayList<String>();
 		for(String bt: discoverableDevicesList) {
+            System.out.println("in device list");
             s.add(bt);
             System.out.println("Device " + bt);
         }
@@ -96,7 +104,7 @@ public class JoinBluetooth extends Activity {
         mBluetoothAdapter.startDiscovery();
 
         // Create a BroadcastReceiver for ACTION_FOUND
-        final List<String> discoverableDevicesList = new ArrayList<String>();
+        //final List<String> discoverableDevicesList = new ArrayList<String>();
         Toast.makeText(getApplicationContext(), "initialize! address is " +  mBluetoothAdapter.getAddress(), Toast.LENGTH_SHORT).show();
 
         /***************************************************************************************************
@@ -112,23 +120,35 @@ public class JoinBluetooth extends Activity {
                 Toast.makeText(getApplicationContext(), "in receiver!", Toast.LENGTH_SHORT).show();
                 Toast.makeText(getApplicationContext(), "intent " + action, Toast.LENGTH_LONG).show();
                 // When discovery finds a device
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    Toast.makeText(getApplicationContext(), "device found!", Toast.LENGTH_SHORT).show();
+               // if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+
                     // Get the BluetoothDevice object from the Intent
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
                     // Add the name and address to an array adapter to show in a ListView
                     //System.out.println(device.getName());
+                    Toast.makeText(getApplicationContext(), "device found! name is " + device.getName(), Toast.LENGTH_SHORT).show();
+                    System.out.println("Device address is " + device.getAddress());
                     discoverableDevicesList.add(device.getName() + "\n" + device.getAddress() + "\n" + rssi);
-                }
+                    for(String s : discoverableDevicesList)
+                        System.out.println("Device list address is " + s);
+
+
+               // }
             }
+
         };
+
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         JoinBluetooth.this.getApplicationContext().registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
 
-        updateList(discoverableDevicesList);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, discoverableDevicesList);
+        newDevicesListView.setAdapter(adapter);
 
 
+
+        System.out.print("set adapter");
     }
     @Override
     protected void onResume() {
