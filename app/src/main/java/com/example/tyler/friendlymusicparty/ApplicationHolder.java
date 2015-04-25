@@ -17,6 +17,7 @@ public class ApplicationHolder extends Application {
     public BluetoothSocket socket;
     public ApplicationHolder data;
     public BluetoothServerSocket serverSocket;
+    private AcceptThread acceptThread;
 
     /***************************************************************************************************
      *
@@ -26,7 +27,7 @@ public class ApplicationHolder extends Application {
 
     public void onCreate(Bundle savedInstanceState) {
 
-        AcceptThread acceptThread = new AcceptThread();
+        acceptThread = new AcceptThread();
         data = new ApplicationHolder();
         socket = acceptThread.getBTContext();
         serverSocket = acceptThread.getMmServerSocket();
@@ -92,8 +93,18 @@ public class ApplicationHolder extends Application {
             run();
             return mmServerSocket;
         }
+
+        public BluetoothSocket getBtSocket() {
+            return socket;
+        }
+
+        public BluetoothServerSocket getServSock() {
+            return mmServerSocket;
+        }
     }
 
-
+    public AcceptThread getAcceptThread() {
+        return this.acceptThread;
+    }
 
 }

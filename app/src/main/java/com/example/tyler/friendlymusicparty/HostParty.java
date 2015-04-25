@@ -124,11 +124,12 @@ public class HostParty extends Activity  implements MediaPlayer.OnCompletionList
         initializeComponents(savedInstanceState);
         addButtonHandlers();
 
-        ApplicationHolder appState = new ApplicationHolder();
-        appState = ((ApplicationHolder)this.getApplication());
+        //ApplicationHolder appState = new ApplicationHolder();
+        //ApplicationHolder appState = ((ApplicationHolder)this.getApplication());
         //socket = appState.socket;
-        ServerSocket = appState.serverSocket;
-
+        //ServerSocket = appState.serverSocket;
+      //  Toast.makeText(getApplicationContext(),
+        //        " your server connection " + appState.getAcceptThread().getServSock(), Toast.LENGTH_LONG).show();
 
         Toast.makeText(getApplicationContext(),
                 " your connection", Toast.LENGTH_LONG).show();

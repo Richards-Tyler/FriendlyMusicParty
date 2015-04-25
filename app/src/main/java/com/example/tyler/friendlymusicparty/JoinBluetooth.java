@@ -31,6 +31,7 @@ public class JoinBluetooth extends Activity {
     private ListView newDevicesListView;
 	private ArrayList<String> deviceList;
     private BluetoothSocket socket;
+    private BroadcastReceiver mReceiver;
     private final UUID my_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
 
     /***************************************************************************************************
@@ -73,12 +74,16 @@ public class JoinBluetooth extends Activity {
 
     }
 
-	public void updateList() {
-		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+	public void updateList(List<String> discoverableDevicesList) {
+		//Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        Toast.makeText(getApplicationContext(), "update list", Toast.LENGTH_SHORT).show();
 
 		List<String> s = new ArrayList<String>();
-		for(String bt: deviceList)
-			s.add(bt);
+		for(String bt: discoverableDevicesList) {
+            s.add(bt);
+            System.out.println("Device " + bt);
+        }
+
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, s);
 		newDevicesListView.setAdapter(adapter);
@@ -86,39 +91,60 @@ public class JoinBluetooth extends Activity {
 	}
 
 	public void initialize() {
-		newDevicesListView = (ListView)findViewById(R.id.new_devices);
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		mBluetoothAdapter.startDiscovery();
+        newDevicesListView = (ListView) findViewById(R.id.new_devices);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter.startDiscovery();
 
-		updateList();
-	}
+        // Create a BroadcastReceiver for ACTION_FOUND
+        final List<String> discoverableDevicesList = new ArrayList<String>();
+        Toast.makeText(getApplicationContext(), "initialize! address is " +  mBluetoothAdapter.getAddress(), Toast.LENGTH_SHORT).show();
 
-    /***************************************************************************************************
-     *
-     * `              Listens for Devices and populates them to a ListView
-     *
-     **************************************************************************************************/
+        /***************************************************************************************************
+         *
+         * `              Listens for Devices and populates them to a ListView
+         *
+         **************************************************************************************************/
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver(){
-        @Override
-        public void onReceive(Context context, Intent intent){
-            String action = intent.getAction();
-            Toast.makeText(getApplicationContext(), "Mreciever", Toast.LENGTH_SHORT).show();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED)
-                {
-                    deviceList.add(device.getName() + "\n" + device.getAddress());
-                    Toast.makeText(getApplicationContext(), "Device address " + device.getAddress(), Toast.LENGTH_SHORT).show();
-                    System.out.println("Device address " + device.getAddress());
-					updateList();
+        mReceiver = new BroadcastReceiver() {
+
+                public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                Toast.makeText(getApplicationContext(), "in receiver!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "intent " + action, Toast.LENGTH_LONG).show();
+                // When discovery finds a device
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    Toast.makeText(getApplicationContext(), "device found!", Toast.LENGTH_SHORT).show();
+                    // Get the BluetoothDevice object from the Intent
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
+                    // Add the name and address to an array adapter to show in a ListView
+                    //System.out.println(device.getName());
+                    discoverableDevicesList.add(device.getName() + "\n" + device.getAddress() + "\n" + rssi);
                 }
-
-
             }
-        }
-    };
+        };
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        JoinBluetooth.this.getApplicationContext().registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
 
+        updateList(discoverableDevicesList);
+
+
+    }
+    @Override
+    protected void onResume() {
+        IntentFilter filter = new IntentFilter();
+        //filter.addAction(ClientParty.BROADCAST_ACTION);
+        registerReceiver(mReceiver, filter);
+        //mBluetoothAdapter.startDiscovery();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(mReceiver);
+        //mBluetoothAdapter.cancelDiscovery();
+        super.onPause();
+    }
     /***************************************************************************************************
      *
      * `              Cancel Discoverability
@@ -129,7 +155,7 @@ public class JoinBluetooth extends Activity {
         super.onDestroy();
         if(mBluetoothAdapter != null)
             mBluetoothAdapter.cancelDiscovery();
-        unregisterReceiver(mReceiver);
+        //unregisterReceiver(mReceiver);
     }
 
 
